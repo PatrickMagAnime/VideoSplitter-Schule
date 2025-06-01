@@ -1,0 +1,21 @@
+[2025-06-01T20:42:28.735973345] Einstellungen gespeichert
+[2025-06-01T20:53:37.763454489] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T20:58:31.512645475] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T20:59:40.049071156] Audio extract: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/katzen baum-30fps.mp4 -> hduwehfiw.MP3
+[2025-06-01T20:59:44.082914604] Audio extrahiert: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/katzen baum-30fps.mp4 als hduwehfiw.mp3
+[2025-06-01T21:05:03.065338549] Einstellungen gespeichert
+[2025-06-01T21:05:59.733861178] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:06:26.249094401] Split: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie.mp4 -> 2 parts, name=output
+[2025-06-01T21:15:44.125434884] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:16:24.589491035] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:16:40.580067684] Split: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie.mp4 -> 1 parts, name=output
+[2025-06-01T21:16:51.541714278] Video gesplittet: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie.mp4 in 1 Teile, Name: output, Bitrate: auto, Auflösung: auto, Codec: copy, Geschwindigkeit: 1.0
+[2025-06-01T21:17:01.605661604] Audio extrahiert: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie.mp4 als /home/patrick/Nya/output.mp3
+[2025-06-01T21:22:48.190135273] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:26:44.553857878] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:28:36.689854136] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:30:19.626194982] Split: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie-30fps.mp4 -> 4 parts, name=output
+[2025-06-01T21:30:21.692361111] Video gesplittet: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/garten schalousie-30fps.mp4 in 4 Teile, Name: output, Bitrate: auto, Auflösung: 1920x1080, Codec: copy, Geschwindigkeit: 1.0
+[2025-06-01T21:35:57.523974371] Directory loaded: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub
+[2025-06-01T21:36:28.570572194] Split: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/katzen baum-30fps.mp4 -> 7 parts, name=Bananensaft
+[2025-06-01T21:36:29.984955889] Video gesplittet: /home/patrick/Nya/School-Big-Datas/MED/3.Klasse/5Min-Video-GitHub/katzen baum-30fps.mp4 in 7 Teile, Name: Bananensaft, OutputFormat: mp4, Bitrate: auto, Auflösung: auto, Codec: copy, Geschwindigkeit: 1.0

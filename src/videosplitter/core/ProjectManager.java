@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-// verwaltet des projekts und lädt videos und audios rekursiv.
+//verwaltet des projekts und lädt videos und audios rekursiv. :thumbsup:
 
 public class ProjectManager {
     private List<VideoFile> videos = new ArrayList<>();
@@ -19,19 +19,19 @@ public class ProjectManager {
                 VideoFormat vf = detectVideoFormat(file.getName());
                 if (vf != VideoFormat.UNKNOWN) {
                     videos.add(new VideoFile(
-                        file.getAbsolutePath(),
-                        file.length(),
-                        vf,
-                        0.0 // dummy
+                            file.getAbsolutePath(),
+                            file.length(),
+                            vf,
+                            0.0 //dummy, weil es nicht leer sein darf
                     ));
                 } else {
                     AudioFormat af = detectAudioFormat(file.getName());
                     if (af != AudioFormat.UNKNOWN) {
                         audios.add(new AudioFile(
-                            file.getAbsolutePath(),
-                            file.length(),
-                            af,
-                            0.0 // dummy
+                                file.getAbsolutePath(),
+                                file.length(),
+                                af,
+                                0.0// dummy
                         ));
                     }
                 }
@@ -53,8 +53,8 @@ public class ProjectManager {
         if (ext.endsWith(".m4v")) return VideoFormat.M4V;
         if (ext.endsWith(".vob")) return VideoFormat.VOB;
         if (ext.endsWith(".ogv")) return VideoFormat.OGV;
-        //if (ext.endsWith(".3gp")) return VideoFormat._3GP; //ist entfernt im enum
-        //if (ext.endsWith(".3g2")) return VideoFormat._3G2; //ist entfernt im enum
+        // if (ext.endsWith(".3gp")) return VideoFormat._3GP; // ist entfernt im enum
+        // if (ext.endsWith(".3g2")) return VideoFormat._3G2; // ist entfernt im enum
         if (ext.endsWith(".mts")) return VideoFormat.MTS;
         if (ext.endsWith(".m2ts")) return VideoFormat.M2TS;
         if (ext.endsWith(".ts")) return VideoFormat.TS;

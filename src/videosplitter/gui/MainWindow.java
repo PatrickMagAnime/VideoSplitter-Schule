@@ -3,14 +3,16 @@ package videosplitter.gui;
 import videosplitter.core.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.dnd.*;
+import java.awt.datatransfer.*;
 import java.io.File;
-
-//hauptfenster des Programms.
+import java.util.List;
 
 public class MainWindow extends JFrame {
     private ProjectManager manager = new ProjectManager();
-    private Settings settings = new Settings();
+    private Settings settings = Settings.autoLoadOrNew();
+    private ImagePanel imagePanel;
+    private static final String PREVIEW_PATH = "preview.jpg";
 
     public MainWindow() {
         setTitle("VideoSplitter");
@@ -18,26 +20,16 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         setSize(700, 500);
 
-        //Bildpanel
-        add(new ImagePanel("resources/sample.jpg"), BorderLayout.WEST);
+        imagePanel = new ImagePanel("resources/sample.jpg");
+        add(imagePanel, BorderLayout.WEST);
 
-        //buttons
         JPanel buttonPanel = new JPanel();
         JButton btnLoad = new JButton("Verzeichnis laden");
-        JButton btnSaveSettings = new JButton("Einstellungen speichern");
-        JButton btnLoadSettings = new JButton("Einstellungen laden");
         JButton btnSplit = new JButton("Video splitten");
-        JButton btnExtractAudio = new JButton("Audio extrahieren");
-
         buttonPanel.add(btnLoad);
         buttonPanel.add(btnSplit);
-        buttonPanel.add(btnExtractAudio);
-        buttonPanel.add(btnSaveSettings);
-        buttonPanel.add(btnLoadSettings);
-
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Video liste
         DefaultListModel<MediaFile> listModel = new DefaultListModel<>();
         JList<MediaFile> mediaList = new JList<>(listModel);
         mediaList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
@@ -50,19 +42,52 @@ public class MainWindow extends JFrame {
         });
         add(new JScrollPane(mediaList), BorderLayout.CENTER);
 
-        //Umschalt Button
-        JToggleButton toggleVideos = new JToggleButton("Zeige Videos", true);
-        JToggleButton toggleAudios = new JToggleButton("Zeige Audios");
-        ButtonGroup group = new ButtonGroup();
-        group.add(toggleVideos);
-        group.add(toggleAudios);
+        //drag & drop für dateien und ordner
+        mediaList.setDropTarget(new DropTarget() {
+            @Override
+            public synchronized void drop(DropTargetDropEvent dtde) {
+                try {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File file : droppedFiles) {
+                        if (file.isDirectory()) {
+                            manager.loadMediaFromDirectory(file);
+                        } else {
+                            VideoFormat vf = manager.detectVideoFormat(file.getName());
+                            if (vf != VideoFormat.UNKNOWN) {
+                                manager.getVideos().add(new VideoFile(file.getAbsolutePath(), file.length(), vf, 0.0));
+                            } else {
+                                AudioFormat af = manager.detectAudioFormat(file.getName());
+                                if (af != AudioFormat.UNKNOWN) {
+                                    manager.getAudios().add(new AudioFile(file.getAbsolutePath(), file.length(), af, 0.0));
+                                }
+                            }
+                        }
+                    }
+                    reloadList(listModel);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
-        JPanel togglePanel = new JPanel();
-        togglePanel.add(toggleVideos);
-        togglePanel.add(toggleAudios);
-        add(togglePanel, BorderLayout.NORTH);
+        //Vorschau beim auswählen eines videos erzeugen/anzeigen
+        mediaList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) { //Nur reagieren wenn endgültig ausgewählt
+                MediaFile mf = mediaList.getSelectedValue();
+                if (mf instanceof VideoFile) {
+                    String previewPath = VideoProcessor.extractPreviewImage(mf.getPath(), PREVIEW_PATH);
+                    if (previewPath != null) {
+                        imagePanel.setImage(previewPath);
+                    } else {
+                        imagePanel.setImage("resources/sample.jpg");
+                    }
+                } else {
+                    imagePanel.setImage("resources/sample.jpg");
+                }
+            }
+        });
 
-        //aktionen
         btnLoad.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -72,43 +97,13 @@ public class MainWindow extends JFrame {
                     manager.getVideos().clear();
                     manager.getAudios().clear();
                     manager.loadMediaFromDirectory(dir);
-                    listModel.clear();
-                    for (VideoFile vf : manager.getVideos()) listModel.addElement(vf);
+                    reloadList(listModel);
                     settings.setLastDirectory(dir.getAbsolutePath());
+                    Logger.log("Directory loaded: " + dir.getAbsolutePath());
                 } catch (Exception ex) {
+                    Logger.log("Fehler beim Laden: " + ex.getMessage());
                     JOptionPane.showMessageDialog(this, "Fehler beim Laden: " + ex.getMessage());
                 }
-            }
-        });
-
-        toggleVideos.addActionListener(e -> {
-            listModel.clear();
-            for (VideoFile vf : manager.getVideos())
-                listModel.addElement(vf);
-        });
-
-        toggleAudios.addActionListener(e -> {
-            listModel.clear();
-            for (AudioFile af : manager.getAudios())
-                listModel.addElement(af);
-        });
-
-        btnSaveSettings.addActionListener(e -> {
-            try {
-                settings.saveToFile(new File("settings.json"));
-                JOptionPane.showMessageDialog(this, "Einstellungen gespeichert.");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Speichern fehlgeschlagen: " + ex.getMessage());
-            }
-        });
-
-        btnLoadSettings.addActionListener(e -> {
-            try {
-                Settings s = Settings.loadFromFile(new File("settings.json"));
-                settings.setLastDirectory(s.getLastDirectory());
-                JOptionPane.showMessageDialog(this, "Einstellungen geladen.");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Laden fehlgeschlagen: " + ex.getMessage());
             }
         });
 
@@ -118,48 +113,54 @@ public class MainWindow extends JFrame {
                 JOptionPane.showMessageDialog(this, "Bitte wählen Sie ein Video aus.");
                 return;
             }
-            String input = JOptionPane.showInputDialog(this, "In wie viele Teile splitten?");
-            if (input == null) return;
-            String customName = JOptionPane.showInputDialog(this, "Basisname für Ausgabedateien?");
-            if (customName == null || customName.trim().isEmpty()) {
-                customName = "output";
-            }
+            VideoSplitSettingsDialog dialog = new VideoSplitSettingsDialog(this, settings);
+            dialog.setVisible(true);
+            if (!dialog.isConfirmed()) return;
+            settings = dialog.getSettings();
             try {
-                int parts = Integer.parseInt(input);
-                new VideoProcessor().splitVideo((VideoFile)mf, parts, customName);
+                int parts;
+                if (settings.isSplitByParts()) {
+                    parts = settings.getDefaultSegments();
+                } else {
+                    double duration = ((VideoFile)mf).getDuration();
+                    if (duration <= 0) {
+                        duration = VideoProcessor.getVideoDuration(mf.getPath());
+                    }
+                    parts = (int)Math.ceil(duration / settings.getSplitSeconds());
+                }
+                Logger.log("Split: " + mf.getPath() + " -> " + parts + " parts, name=" + settings.getCustomName());
+                new VideoProcessor().splitVideo((VideoFile)mf, parts, settings.getCustomName(), settings);
+
+                //audio extrahieren falls gewünscht
+                if (settings.isExtractAudio()) {
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    chooser.setDialogTitle("Zielordner für extrahiertes Audio wählen");
+                    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                        File dir = chooser.getSelectedFile();
+                        AudioFormat af = AudioFormat.valueOf(settings.getAudioFormat());
+                        new VideoProcessor().extractAudioFromVideo((VideoFile)mf, settings.getCustomName(), dir, af);
+                    }
+                }
             } catch (Exception ex) {
+                Logger.log("Ungültige Eingabe: " + ex.getMessage());
                 JOptionPane.showMessageDialog(this, "Ungültige Eingabe.");
             }
         });
 
-        btnExtractAudio.addActionListener(e -> {
-            MediaFile mf = mediaList.getSelectedValue();
-            if (!(mf instanceof VideoFile)) {
-                JOptionPane.showMessageDialog(this, "Bitte wählen Sie ein Video aus.");
-                return;
+        //einstellungen automatisch laden & Medienliste füllen
+        if (settings.getLastDirectory() != null) {
+            File dir = new File(settings.getLastDirectory());
+            if (dir.exists() && dir.isDirectory()) {
+                manager.loadMediaFromDirectory(dir);
+                reloadList(listModel);
             }
-            VideoFile vf = (VideoFile) mf;
-            String customName = JOptionPane.showInputDialog(this, "Name für die Audiodatei?");
-            if (customName == null || customName.trim().isEmpty()) {
-                customName = "audio";
-            }
-            AudioFormat[] audioFormats = AudioFormat.values();
-            String[] formatNames = new String[audioFormats.length - 1];
-            for (int i=0,k=0; i<audioFormats.length; i++) {
-                if (audioFormats[i]!=AudioFormat.UNKNOWN) formatNames[k++] = audioFormats[i].name();
-            }
-            String selectedFormat = (String) JOptionPane.showInputDialog(this,
-                    "Zielformat?", "Audioformat wählen",
-                    JOptionPane.QUESTION_MESSAGE, null,
-                    formatNames, formatNames[0]);
-            if (selectedFormat == null) return;
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File dir = chooser.getSelectedFile();
-                new VideoProcessor().extractAudioFromVideo(
-                        vf, customName, dir, AudioFormat.valueOf(selectedFormat));
-            }
-        });
+        }
+    }
+
+    private void reloadList(DefaultListModel<MediaFile> listModel) {
+        listModel.clear();
+        for (VideoFile vf : manager.getVideos()) listModel.addElement(vf);
+        for (AudioFile af : manager.getAudios()) listModel.addElement(af);
     }
 }

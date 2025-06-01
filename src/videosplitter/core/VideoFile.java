@@ -1,6 +1,6 @@
 package videosplitter.core;
 
-//die klasse ist für videodateien da
+// die klasse ist für videodateien da
 public class VideoFile extends MediaFile {
     private VideoFormat format;
     private double duration; // in Sekunden
