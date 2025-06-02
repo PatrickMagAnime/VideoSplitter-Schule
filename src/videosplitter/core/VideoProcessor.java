@@ -35,7 +35,7 @@ public class VideoProcessor {
         String input = file.getPath();
 
         String ext = settings.getVideoOutputFormat();
-        // Zielverzeichnis gleich wie Quelldatei
+        //Zielverzeichnis gleich wie quelldatei
         File inputFile = new File(input);
         File outputDir = inputFile.getParentFile();
         if (outputDir == null) outputDir = new File(".");
@@ -180,7 +180,7 @@ public class VideoProcessor {
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
-            // ffmpeg ausgabe anzeigen
+            //ffmpeg ausgabe anzeigen
             StringBuilder ffmpegOut = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line;
