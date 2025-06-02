@@ -5,13 +5,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
+//fancy name ich weis
+//macht auch genau das so wie es heißt
 public class VideoSplitSettingsDialog extends JDialog {
     private boolean confirmed = false;
     private Settings settings;
 
     public VideoSplitSettingsDialog(Frame parent, Settings currentSettings) {
         super(parent, "Video Split Einstellungen", true);
-        // Immer gespeicherte Einstellungen laden!
+        // Immer gespeicherte einstellungen laden
         this.settings = Settings.autoLoadOrNew();
 
         setLayout(new GridBagLayout());
@@ -29,6 +31,7 @@ public class VideoSplitSettingsDialog extends JDialog {
             spSeconds.setEnabled(!cbParts.isSelected());
         });
 
+        //dropdown menues
         String[] bitrateOptions = {"auto","500k","1000k","1500k","2000k","2500k","3000k","5000k","8000k"};
         JComboBox<String> bitrateDropdown = new JComboBox<>(bitrateOptions);
         bitrateDropdown.setEditable(true);
@@ -46,6 +49,7 @@ public class VideoSplitSettingsDialog extends JDialog {
         JSpinner spSpeed = new JSpinner(new SpinnerNumberModel(settings.getSpeed(), 0.1, 10.0, 0.1));
         JTextField tfCustomName = new JTextField(settings.getCustomName(), 16);
 
+        //checkbox für (in audio umwandeln)
         JCheckBox cbExtractAudio = new JCheckBox("Audio extrahieren", settings.isExtractAudio());
         String[] audioFormats = java.util.Arrays.stream(videosplitter.core.AudioFormat.values())
                 .filter(f -> f != videosplitter.core.AudioFormat.UNKNOWN)
@@ -56,7 +60,7 @@ public class VideoSplitSettingsDialog extends JDialog {
         audioFormatDropdown.setEnabled(cbExtractAudio.isSelected());
         cbExtractAudio.addItemListener(e -> audioFormatDropdown.setEnabled(cbExtractAudio.isSelected()));
 
-        // Video-Ausgabeformat Dropdown (alle unterstützten Videoformate)
+        //Video Ausgabeformat Dropdown (alle unterstützten Videoformate)
         String[] videoFormats = java.util.Arrays.stream(videosplitter.core.VideoFormat.values())
                 .filter(f -> f != videosplitter.core.VideoFormat.UNKNOWN)
                 .map(f -> f.name().toLowerCase())

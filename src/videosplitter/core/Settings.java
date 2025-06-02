@@ -17,6 +17,10 @@ public class Settings {
     private String audioFormat = "MP3";
     private String videoOutputFormat = "mp4"; // <--- NEU
 
+    //getter und setter methoden
+    //ist kompakt formatiert weil es einfach zu viele sind
+    //diese werte sind alle für die einstellungen die man für das video einstellen kann
+    //werden auch für das speichern der json config verwendet usw.
     public String getLastDirectory() { return lastDirectory; }
     public void setLastDirectory(String lastDirectory) { this.lastDirectory = lastDirectory; }
     public int getDefaultSegments() { return defaultSegments; }
@@ -42,18 +46,21 @@ public class Settings {
     public String getVideoOutputFormat() { return videoOutputFormat; }
     public void setVideoOutputFormat(String videoOutputFormat) { this.videoOutputFormat = videoOutputFormat; }
 
+    //speicherung der einstellungen in json
     public void saveToFile(File file) throws IOException {
         try (Writer writer = new FileWriter(file)) {
             new Gson().toJson(this, writer);
         }
     }
 
+    //laden der einstellungen | wird immer automatisch aufgerufen(siehe unten)
     public static Settings loadFromFile(File file) throws IOException {
         try (Reader reader = new FileReader(file)) {
             return new Gson().fromJson(reader, Settings.class);
         }
     }
 
+    //(ja hier)
     public static Settings autoLoadOrNew() {
         File file = new File("settings.json");
         if (file.exists()) {

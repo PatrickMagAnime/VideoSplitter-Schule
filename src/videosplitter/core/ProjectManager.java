@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-//verwaltet des projekts und lädt videos und audios rekursiv. :thumbsup:
+//verwaltet des projekts und lädt videos und audios rekursiv.
 
 public class ProjectManager {
     private List<VideoFile> videos = new ArrayList<>();
@@ -14,7 +14,7 @@ public class ProjectManager {
         if (!dir.exists() || !dir.isDirectory()) return;
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) {
-                loadMediaFromDirectory(file); // rekursion
+                loadMediaFromDirectory(file); // rekursion, weil methode ruft sich selber auf
             } else {
                 VideoFormat vf = detectVideoFormat(file.getName());
                 if (vf != VideoFormat.UNKNOWN) {

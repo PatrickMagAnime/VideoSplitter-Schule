@@ -1,7 +1,7 @@
 package videosplitter.core;
 
 //klasse nur für mediendateien
-//die klasse existiert nur um die aufgabenstellung zu erfüllen
+//diese klassen existieren nur um die aufgabenstellung zu erfüllen
 
 public class MediaFile {
     protected String path;

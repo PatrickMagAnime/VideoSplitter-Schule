@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+//hier drinnen befindet sich die hauptlogik der die videos zerteilt usw.
+
 //video und audio mit ffmpeg
 public class VideoProcessor {
 
@@ -24,7 +26,7 @@ public class VideoProcessor {
         return 0;
     }
 
-    //die methode splittet das video in teile
+    //die methode ist dafür da die eingesetllten optionen zu übergeben und den dateien namen zu geben
     public void splitVideo(VideoFile file, int parts, String customName, Settings settings) {
         String ffmpegPath = "ffmpeg"; // absoluter Pfad (weil linux)
         String input = file.getPath();
@@ -36,7 +38,7 @@ public class VideoProcessor {
         if (settings.isSplitByParts()) {
             double duration = file.getDuration();
             if (duration <= 0) duration = getVideoDuration(file.getPath());
-            segmentTime = (int)Math.ceil(duration / parts); //rechnet hier die dauer pro video-teil aus
+            segmentTime = (int)Math.ceil(duration / parts); //rechnet hier die dauer pro video teil aus
         } else {
             segmentTime = settings.getSplitSeconds();
         }
@@ -52,7 +54,7 @@ public class VideoProcessor {
         if ("mkv".equalsIgnoreCase(ext) && "copy".equals(codec)) codec = "libx264";
         if ("avi".equalsIgnoreCase(ext) && "copy".equals(codec)) codec = "mpeg4";
 
-        //codec
+        //codec (ist die dekodierung) //haben wir in MED besprochen
         cmd.add("-c:v");
         cmd.add(codec);
 
@@ -84,11 +86,12 @@ public class VideoProcessor {
         cmd.add(output);
 
         try {
-            ProcessBuilder pb = new ProcessBuilder(cmd); //processbuilder baut einen command zusammen der ausgeführt wird
+            ProcessBuilder pb = new ProcessBuilder(cmd); //processbuilder baut einen command zusammen der dann ausgeführt wird
+            //random info: processbuilder werden als false positiv bei manchen antiviren scanner erkannt
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
-            //FFmpeg-Ausgabe anzeigen
+            //FFmpeg Ausgabe anzeigen
             StringBuilder ffmpegOut = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line;

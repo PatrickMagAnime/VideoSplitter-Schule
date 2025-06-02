@@ -31,7 +31,7 @@ public class MainWindow extends JFrame {
         buttonPanel.add(btnSplit);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Fortschrittsbalken unten
+        //Fortschrittsbalken
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(false);
         progressBar.setVisible(false);
@@ -78,7 +78,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        // Vorschau beim Auswählen eines Videos erzeugen/anzeigen
+        //Vorschau beim auswählen eines videos erzeugen/anzeigen
         mediaList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) { //Nur reagieren wenn endgültig ausgewählt
                 MediaFile mf = mediaList.getSelectedValue();
@@ -125,7 +125,9 @@ public class MainWindow extends JFrame {
             if (!dialog.isConfirmed()) return;
             settings = dialog.getSettings();
 
-            // Split startet im Hintergrund-Thread!
+            // Split startet im Hintergrund Thread!
+            //das herauszufinden hat zu lange gedauert
+            //stackoverflow und llm's mussten bischen helfen
             new Thread(() -> {
                 try {
                     SwingUtilities.invokeLater(() -> {
@@ -173,7 +175,7 @@ public class MainWindow extends JFrame {
             }).start();
         });
 
-        // Einstellungen automatisch laden & Medienliste füllen
+        //Einstellungen automatisch laden & medienliste füllen(also anzeigen von inhalt des ordners)
         if (settings.getLastDirectory() != null) {
             File dir = new File(settings.getLastDirectory());
             if (dir.exists() && dir.isDirectory()) {
@@ -183,6 +185,7 @@ public class MainWindow extends JFrame {
         }
     }
 
+    //ladet neu falls neue dateien hinein kommen
     private void reloadList(DefaultListModel<MediaFile> listModel) {
         listModel.clear();
         for (VideoFile vf : manager.getVideos()) listModel.addElement(vf);
