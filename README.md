@@ -14,7 +14,7 @@ Der **Video Splitter** ist ein Java-Programm, mit dem Videodateien unkompliziert
 
 ## Aufgabenverteilung
 
-Wir sind ein Team aus **Patrick Riedl** und **Nikola Logofetić**.
+Wir sind ein Team aus **Patrick Riedl** und **Nikola Logofetic**.
 
 - **Nikola** ist hauptsächlich für die grafische Benutzeroberfläche (GUI) zuständig und kümmert sich um das Bedienkonzept und die Dokumentation.
 - **Patrick** übernimmt die technische Umsetzung der Videobearbeitung – insbesondere das Schneiden, das Handling der Videodateien und den Export. Außerdem betreut er die Einbindung und das Testen neuer Features.
