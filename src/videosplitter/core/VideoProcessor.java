@@ -22,7 +22,10 @@ public class VideoProcessor {
                     return Double.parseDouble(line.trim());
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Logger.log("Fehler bei getVideoDuration: " + ex.getMessage());
+        }
         return 0;
     }
 
@@ -30,8 +33,13 @@ public class VideoProcessor {
     public void splitVideo(VideoFile file, int parts, String customName, Settings settings) {
         String ffmpegPath = "ffmpeg"; // absoluter Pfad (weil linux)
         String input = file.getPath();
+
         String ext = settings.getVideoOutputFormat();
-        String output = customName + "_part%03d." + ext; // Format aus den Settings
+        // Zielverzeichnis gleich wie Quelldatei
+        File inputFile = new File(input);
+        File outputDir = inputFile.getParentFile();
+        if (outputDir == null) outputDir = new File(".");
+        String output = new File(outputDir, customName + "_part%03d." + ext).getAbsolutePath(); // Format aus den Settings
 
         //segment zeit bestimmen
         int segmentTime;
@@ -45,10 +53,11 @@ public class VideoProcessor {
 
         List<String> cmd = new ArrayList<>();
         cmd.add(ffmpegPath);
+        cmd.add("-y"); // immer überschreiben
         cmd.add("-i");
         cmd.add(input);
 
-       //codec einstellungen für video formate
+        //codec einstellungen für video formate
         String codec = settings.getCodec();
         if ("webm".equalsIgnoreCase(ext) && "copy".equals(codec)) codec = "libvpx-vp9";
         if ("mkv".equalsIgnoreCase(ext) && "copy".equals(codec)) codec = "libx264";
@@ -58,20 +67,27 @@ public class VideoProcessor {
         cmd.add("-c:v");
         cmd.add(codec);
 
+        // audiocodec explizit setzen
+        if (!"copy".equals(codec)) {
+            cmd.add("-c:a");
+            cmd.add("aac"); // Standard Audio-Codec, ggf. abhängig vom Format machen
+        }
+
         //bitrate
-        if (!"auto".equals(settings.getBitrate())) {
+        if (settings.getBitrate() != null && !"auto".equals(settings.getBitrate())) {
             cmd.add("-b:v");
             cmd.add(settings.getBitrate());
         }
 
         //auflösung
-        if (!"auto".equals(settings.getResolution())) {
+        if (settings.getResolution() != null && !"auto".equals(settings.getResolution())) {
             cmd.add("-s");
             cmd.add(settings.getResolution());
         }
 
         //geschwindigkeit
-        if (settings.getSpeed() != 1.0) {
+        boolean hasSpeed = (settings.getSpeed() != 1.0);
+        if (hasSpeed) {
             cmd.add("-filter:v");
             cmd.add(String.format("setpts=%.6f*PTS", (1.0 / settings.getSpeed())));
         }
@@ -83,11 +99,14 @@ public class VideoProcessor {
         cmd.add(String.valueOf(segmentTime));
         cmd.add("-reset_timestamps");
         cmd.add("1");
+        // für sauberes Mapping aller Streams
+        cmd.add("-map");
+        cmd.add("0");
+
         cmd.add(output);
 
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd); //processbuilder baut einen command zusammen der dann ausgeführt wird
-            //random info: processbuilder werden als false positiv bei manchen antiviren scanner erkannt
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
@@ -132,7 +151,10 @@ public class VideoProcessor {
             if (new java.io.File(outPath).exists()) {
                 return outPath;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Logger.log("Fehler bei extractPreviewImage: " + ex.getMessage());
+        }
         return null;
     }
 
@@ -140,15 +162,17 @@ public class VideoProcessor {
     public void extractAudioFromVideo(VideoFile videoFile, String customAudioName, File targetDir, AudioFormat af) {
         String ffmpegPath = "ffmpeg";
         String input = videoFile.getPath();
-        String outputFile = new File(targetDir, customAudioName + "." + af.name().toLowerCase()).getAbsolutePath();
+        String format = af == AudioFormat.UNKNOWN ? "mp3" : af.name().toLowerCase();
+        String outputFile = new File(targetDir, customAudioName + "." + format).getAbsolutePath();
 
         List<String> cmd = new ArrayList<>();
         cmd.add(ffmpegPath);
+        cmd.add("-y"); // überschreiben
         cmd.add("-i");
         cmd.add(input);
         cmd.add("-vn");
         cmd.add("-acodec");
-        cmd.add(af == AudioFormat.UNKNOWN ? "copy" : af.name().toLowerCase());
+        cmd.add(af == AudioFormat.UNKNOWN ? "mp3" : af.name().toLowerCase());
         cmd.add(outputFile);
 
         try {
@@ -156,7 +180,7 @@ public class VideoProcessor {
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
-            // ffmpega ausgabe anzeigen
+            // ffmpeg ausgabe anzeigen
             StringBuilder ffmpegOut = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line;
