@@ -1,1 +1,1 @@
-{"defaultSegments":7,"splitByParts":true,"splitSeconds":32,"bitrate":"auto","resolution":"auto","codec":"copy","speed":1.0,"customName":"output","extractAudio":false,"audioFormat":"MP3","videoOutputFormat":"mp4"}
+{"defaultSegments":7,"splitByParts":false,"splitSeconds":6,"bitrate":"auto","resolution":"854x480","codec":"copy","speed":1.0,"customName":"noga","extractAudio":false,"audioFormat":"MP3","videoOutputFormat":"mov"}

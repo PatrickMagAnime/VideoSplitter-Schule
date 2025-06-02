@@ -13,12 +13,13 @@ public class MainWindow extends JFrame {
     private Settings settings = Settings.autoLoadOrNew();
     private ImagePanel imagePanel;
     private static final String PREVIEW_PATH = "preview.jpg";
+    private JProgressBar progressBar;
 
     public MainWindow() {
         setTitle("VideoSplitter");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(700, 500);
+        setSize(900, 500);
 
         imagePanel = new ImagePanel("resources/sample.jpg");
         add(imagePanel, BorderLayout.WEST);
@@ -29,6 +30,12 @@ public class MainWindow extends JFrame {
         buttonPanel.add(btnLoad);
         buttonPanel.add(btnSplit);
         add(buttonPanel, BorderLayout.SOUTH);
+
+        // Fortschrittsbalken unten
+        progressBar = new JProgressBar();
+        progressBar.setIndeterminate(false);
+        progressBar.setVisible(false);
+        add(progressBar, BorderLayout.NORTH); // Oder SOUTH, wie du magst
 
         DefaultListModel<MediaFile> listModel = new DefaultListModel<>();
         JList<MediaFile> mediaList = new JList<>(listModel);
@@ -42,7 +49,7 @@ public class MainWindow extends JFrame {
         });
         add(new JScrollPane(mediaList), BorderLayout.CENTER);
 
-        //drag & drop für dateien und ordner
+        // Drag & Drop für Dateien und Ordner
         mediaList.setDropTarget(new DropTarget() {
             @Override
             public synchronized void drop(DropTargetDropEvent dtde) {
@@ -71,7 +78,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        //Vorschau beim auswählen eines videos erzeugen/anzeigen
+        // Vorschau beim Auswählen eines Videos erzeugen/anzeigen
         mediaList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) { //Nur reagieren wenn endgültig ausgewählt
                 MediaFile mf = mediaList.getSelectedValue();
@@ -117,38 +124,56 @@ public class MainWindow extends JFrame {
             dialog.setVisible(true);
             if (!dialog.isConfirmed()) return;
             settings = dialog.getSettings();
-            try {
-                int parts;
-                if (settings.isSplitByParts()) {
-                    parts = settings.getDefaultSegments();
-                } else {
-                    double duration = ((VideoFile)mf).getDuration();
-                    if (duration <= 0) {
-                        duration = VideoProcessor.getVideoDuration(mf.getPath());
-                    }
-                    parts = (int)Math.ceil(duration / settings.getSplitSeconds());
-                }
-                Logger.log("Split: " + mf.getPath() + " -> " + parts + " parts, name=" + settings.getCustomName());
-                new VideoProcessor().splitVideo((VideoFile)mf, parts, settings.getCustomName(), settings);
 
-                //audio extrahieren falls gewünscht
-                if (settings.isExtractAudio()) {
-                    JFileChooser chooser = new JFileChooser();
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    chooser.setDialogTitle("Zielordner für extrahiertes Audio wählen");
-                    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                        File dir = chooser.getSelectedFile();
-                        AudioFormat af = AudioFormat.valueOf(settings.getAudioFormat());
-                        new VideoProcessor().extractAudioFromVideo((VideoFile)mf, settings.getCustomName(), dir, af);
+            // Split startet im Hintergrund-Thread!
+            new Thread(() -> {
+                try {
+                    SwingUtilities.invokeLater(() -> {
+                        progressBar.setIndeterminate(true);
+                        progressBar.setVisible(true);
+                    });
+
+                    int parts;
+                    if (settings.isSplitByParts()) {
+                        parts = settings.getDefaultSegments();
+                    } else {
+                        double duration = ((VideoFile)mf).getDuration();
+                        if (duration <= 0) {
+                            duration = VideoProcessor.getVideoDuration(mf.getPath());
+                        }
+                        parts = (int)Math.ceil(duration / settings.getSplitSeconds());
                     }
+                    Logger.log("Split: " + mf.getPath() + " -> " + parts + " parts, name=" + settings.getCustomName());
+                    new VideoProcessor().splitVideo((VideoFile)mf, parts, settings.getCustomName(), settings);
+
+                    // Audio extrahieren falls gewünscht (Dialog im EDT)
+                    if (settings.isExtractAudio()) {
+                        SwingUtilities.invokeLater(() -> {
+                            JFileChooser chooser = new JFileChooser();
+                            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                            chooser.setDialogTitle("Zielordner für extrahiertes Audio wählen");
+                            if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                                File dir = chooser.getSelectedFile();
+                                AudioFormat af = AudioFormat.valueOf(settings.getAudioFormat());
+                                new VideoProcessor().extractAudioFromVideo((VideoFile)mf, settings.getCustomName(), dir, af);
+                            }
+                        });
+                    }
+                } catch (Exception ex) {
+                    Logger.log("Ungültige Eingabe: " + ex.getMessage());
+                    SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(this, "Ungültige Eingabe.")
+                    );
+                } finally {
+                    SwingUtilities.invokeLater(() -> {
+                        progressBar.setIndeterminate(false);
+                        progressBar.setVisible(false);
+                    });
                 }
-            } catch (Exception ex) {
-                Logger.log("Ungültige Eingabe: " + ex.getMessage());
-                JOptionPane.showMessageDialog(this, "Ungültige Eingabe.");
-            }
+            }).start();
         });
 
-        //einstellungen automatisch laden & Medienliste füllen
+        // Einstellungen automatisch laden & Medienliste füllen
         if (settings.getLastDirectory() != null) {
             File dir = new File(settings.getLastDirectory());
             if (dir.exists() && dir.isDirectory()) {
