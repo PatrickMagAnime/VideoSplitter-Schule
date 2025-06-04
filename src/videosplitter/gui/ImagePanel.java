@@ -11,7 +11,7 @@ public class ImagePanel extends JPanel {
 
     public ImagePanel(String path) {
         setImage(path);
-        setPreferredSize(new Dimension(180, 120)); //16:9
+        setPreferredSize(new Dimension(307, 120)); //16:9 //180, 120
     }
 
     public void setImage(String path) {

@@ -148,7 +148,7 @@ public class MainWindow extends JFrame {
                     Logger.log("Split: " + mf.getPath() + " -> " + parts + " parts, name=" + settings.getCustomName());
                     new VideoProcessor().splitVideo((VideoFile)mf, parts, settings.getCustomName(), settings);
 
-                    // Audio extrahieren falls gewünscht (Dialog im EDT)
+                    //audio extrahieren falls gewünscht
                     if (settings.isExtractAudio()) {
                         SwingUtilities.invokeLater(() -> {
                             JFileChooser chooser = new JFileChooser();
@@ -191,4 +191,6 @@ public class MainWindow extends JFrame {
         for (VideoFile vf : manager.getVideos()) listModel.addElement(vf);
         for (AudioFile af : manager.getAudios()) listModel.addElement(af);
     }
+
+
 }
