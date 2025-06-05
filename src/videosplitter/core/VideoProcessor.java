@@ -31,7 +31,7 @@ public class VideoProcessor {
 
     //die methode ist dafür da die eingesetllten optionen zu übergeben und den dateien namen zu geben
     public void splitVideo(VideoFile file, int parts, String customName, Settings settings) {
-        String ffmpegPath = "ffmpeg"; // absoluter Pfad (weil linux)
+        String ffmpegPath = "ffmpeg"; //Pfad (weil linux)
         String input = file.getPath();
 
         String ext = settings.getVideoOutputFormat();

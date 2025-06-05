@@ -15,7 +15,7 @@ public class Settings {
     private String customName = "output";
     private boolean extractAudio = false;
     private String audioFormat = "MP3";
-    private String videoOutputFormat = "mp4"; // <--- NEU
+    private String videoOutputFormat = "mp4";
 
     //getter und setter methoden
     //ist kompakt formatiert weil es einfach zu viele sind

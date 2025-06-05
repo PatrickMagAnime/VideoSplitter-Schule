@@ -320,3 +320,9 @@ Error opening output files: Encoder not found
 [2025-06-04T12:42:38.439646385] Directory loaded: /home/patrick/aSEW-VideoFolder
 [2025-06-04T12:58:13.321313017] Directory loaded: /home/patrick/aSEW-VideoFolder
 [2025-06-04T12:59:34.735540319] Directory loaded: /home/patrick/aSEW-VideoFolder
+[2025-06-04T13:12:11.615981055] Directory loaded: /home/patrick/aSEW-VideoFolder
+[2025-06-04T13:12:34.443845073] Split: /home/patrick/aSEW-VideoFolder/test_part002.mp4 -> 7 parts, name=test
+[2025-06-04T13:12:37.290213551] Video gesplittet: /home/patrick/aSEW-VideoFolder/test_part002.mp4 in 7 Teile, Name: test, OutputFormat: mp4, Bitrate: auto, Auflösung: 1280x720, Codec: copy, Geschwindigkeit: 1.0
+[2025-06-04T13:14:36.100833496] Directory loaded: /home/patrick/aSEW-VideoFolder
+[2025-06-05T10:10:03.004534890] Directory loaded: /home/patrick/aSEW-VideoFolder
+[2025-06-05T10:30:25.074406145] Directory loaded: /home/patrick/aSEW-VideoFolder
